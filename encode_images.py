@@ -22,8 +22,9 @@ def main():
     parser.add_argument('generated_images_dir', help='Directory for storing generated images')
     parser.add_argument('dlatent_dir', help='Directory for storing dlatent representations')
 
-    parser.add_argument('--network_pkl', default='gdrive:networks/stylegan2-ffhq-config-f.pkl', help='Path to local copy of stylegan2-ffhq-config-f.pkl')
-
+    parser.add_argument('--network_pkl', default='networks/generator_yellow-stylegan2-config-f.pkl', help='Path to local copy of stylegan2-ffhq-config-f.pkl')
+    parser.add_argument('--output_prefix',default='encoded',help='specify the output prefix')
+    
     # for now it's unclear if larger batch leads to better performance/quality
     parser.add_argument('--batch_size', default=1, help='Batch size for generator and perceptual model', type=int)
 
@@ -34,6 +35,7 @@ def main():
 
     # Generator params
     parser.add_argument('--randomize_noise', default=False, help='Add noise to dlatents during optimization', type=bool)
+
     args, other_args = parser.parse_known_args()
 
     ref_images = [os.path.join(args.src_dir, x) for x in os.listdir(args.src_dir)]
@@ -69,7 +71,7 @@ def main():
         generated_dlatents = generator.get_dlatents()
         for img_array, dlatent, img_name in zip(generated_images, generated_dlatents, names):
             img = PIL.Image.fromarray(img_array, 'RGB')
-            img.save(os.path.join(args.generated_images_dir, f'{img_name}.png'), 'PNG')
+            img.save(os.path.join(args.generated_images_dir, f'{args.output_prefix}{img_name}.png'), 'PNG')
             np.save(os.path.join(args.dlatent_dir, f'{img_name}.npy'), dlatent)
 
         generator.reset_dlatents()
